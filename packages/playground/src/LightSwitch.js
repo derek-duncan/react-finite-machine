@@ -34,7 +34,6 @@ const lightMachine = Machine({
       states: {
         c: {
           on: {
-            FLICK: 'c',
             UNBLOCK: 'd',
           },
           onEntry: { type: 'startUnblockTimer', delay: 500 },
@@ -45,11 +44,18 @@ const lightMachine = Machine({
           states: {
             e: {
               on: {
-                FLICK: 'e',
                 UNBLOCK: 'f',
               },
               onEntry: { type: 'startUnblockTimer', delay: 500 },
               onExit: { type: 'cancelUnblockTimer' },
+              initial: 'g',
+              states: {
+                g: {
+                  on: {
+                    FLICK: 'g',
+                  }
+                }
+              }
             },
             f: {},
           },
