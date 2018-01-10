@@ -3,21 +3,56 @@ import { State as MachineState } from 'xstate';
 import { StandardMachine, Action } from 'xstate/lib/types';
 
 export type Props = {
-  initialState: Object;
+  initialState: ExtendedState;
   machine: StandardMachine;
-  reducer: (bag: Bag, action: Action) => any;
+  reducer: (
+    bag: Bag,
+    action: Action
+  ) =>
+    | ReducerNoUpdate
+    | ReducerUpdate
+    | ReducerSideEffects
+    | ReducerUpdateWithSideEffects;
   render: (bag: Bag) => React.ReactNode;
 };
 
 export type State = {
   machineState: MachineState;
-  extendedState: Object;
+  extendedState: ExtendedState;
 };
+
+export type ExtendedState = Object;
+
+export type SideEffect = () => void;
 
 export type Bag = {
   transition: (eventName: string) => void;
-  state: any;
+  state: ExtendedState;
   machineState: MachineState;
+};
+
+export type ReducerUpdate = {
+  type: '@FiniteMachine/UPDATE';
+  nextState: ExtendedState;
+  sideEffect?: void;
+};
+
+export type ReducerNoUpdate = {
+  type: '@FiniteMachine/NO_UPDATE';
+  nextState?: void;
+  sideEffect?: void;
+};
+
+export type ReducerSideEffects = {
+  type: '@FiniteMachine/SIDE_EFFECTS';
+  nextState?: void;
+  sideEffect: SideEffect;
+};
+
+export type ReducerUpdateWithSideEffects = {
+  type: '@FiniteMachine/UPDATE_WITH_SIDE_EFFECTS';
+  nextState: ExtendedState;
+  sideEffect: SideEffect;
 };
 
 export class FiniteMachine extends React.Component<Props, State> {
@@ -52,13 +87,13 @@ export class FiniteMachine extends React.Component<Props, State> {
      * Collect the side effects from the reducer results so they can be run
      * after the state updates have completed.
      */
-    let nextSideEffects: Function[] = [];
+    let nextSideEffects: SideEffect[] = [];
     this.setState(
       () => {
         let nextExtendedState = extendedState;
 
         for (let actionName of machineState.actions) {
-          const { nextState, sideEffects } = reducer(
+          const { nextState, sideEffect } = reducer(
             this.makeBag(machineState),
             actionName
           );
@@ -72,7 +107,9 @@ export class FiniteMachine extends React.Component<Props, State> {
             ...nextState,
           };
 
-          nextSideEffects = nextSideEffects.concat(sideEffects);
+          if (sideEffect) {
+            nextSideEffects = nextSideEffects.concat(sideEffect);
+          }
         }
 
         return {
@@ -81,11 +118,7 @@ export class FiniteMachine extends React.Component<Props, State> {
         };
       },
       () => {
-        nextSideEffects.forEach(sideEffect => {
-          if (typeof sideEffect === 'function') {
-            sideEffect();
-          }
-        });
+        nextSideEffects.forEach(sideEffect => sideEffect());
       }
     );
   }
@@ -98,6 +131,29 @@ export class FiniteMachine extends React.Component<Props, State> {
     };
   }
 
+  static NoUpdate(): ReducerNoUpdate {
+    return { type: '@FiniteMachine/NO_UPDATE' };
+  }
+
+  static Update(nextState: ExtendedState): ReducerUpdate {
+    return { nextState, type: '@FiniteMachine/UPDATE' };
+  }
+
+  static SideEffects(sideEffect: SideEffect): ReducerSideEffects {
+    return { sideEffect, type: '@FiniteMachine/SIDE_EFFECTS' };
+  }
+
+  static UpdateWithSideEffects(
+    nextState: ExtendedState,
+    sideEffect: SideEffect
+  ): ReducerUpdateWithSideEffects {
+    return {
+      nextState,
+      sideEffect,
+      type: '@FiniteMachine/UPDATE_WITH_SIDE_EFFECTS',
+    };
+  }
+
   render() {
     const { render } = this.props;
     const { machineState } = this.state;
@@ -105,23 +161,3 @@ export class FiniteMachine extends React.Component<Props, State> {
     return render(this.makeBag(machineState));
   }
 }
-
-FiniteMachine.NoUpdate = function() {
-  return { type: '@FiniteMachine/NO_UPDATE' };
-};
-
-FiniteMachine.Update = function(nextState) {
-  return { nextState, type: '@FiniteMachine/UPDATE' };
-};
-
-FiniteMachine.SideEffects = function(sideEffects) {
-  return { sideEffects, type: '@FiniteMachine/SIDE_EFFECTS' };
-};
-
-FiniteMachine.UpdateWithSideEffects = function(nextState, sideEffects) {
-  return {
-    nextState,
-    sideEffects,
-    type: '@FiniteMachine/UPDATE_WITH_SIDE_EFFECTS',
-  };
-};

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Machine } from 'xstate';
-import FSM from 'react-finite-machine';
+import FiniteMachine from 'react-finite-machine';
 
 const lightMachine = Machine({
   initial: 'off',
@@ -63,43 +63,44 @@ const lightMachine = Machine({
 
 class Light extends React.Component {
   /**
-   * The reducer allows the FSM component to respond to actions in the state machine.
+   * The reducer allows the FiniteMachine component to respond to actions in the state machine.
    * It is called every time a transition occurs in the state machine. It follows the
    * ReactReason reducer API where we explicitly return a state update with or without
    * side effects.
    */
   reducer = ({ machineState, state, transition }, action) => {
     switch (action.type) {
+      case 'turnOn':
+        return FiniteMachine.Update({ on: true });
+      case 'turnOff':
+        return FiniteMachine.Update({ on: false });
       case 'startUnblockTimer':
-        return FSM.UpdateWithSideEffects({ blocked: true }, () => {
+        return FiniteMachine.UpdateWithSideEffects({ blocked: true }, () => {
           this.unblockTimer = setTimeout(
-            transition.bind(this, 'unblock'),
+            () => transition('unblock'),
             action.delay
           );
         });
       case 'cancelUnblockTimer':
-        return FSM.UpdateWithSideEffects({ blocked: false }, () => {
+        return FiniteMachine.UpdateWithSideEffects({ blocked: false }, () => {
           clearTimeout(this.unblockTimer);
         });
-      case 'turnOn':
-        return FSM.Update({ on: true });
-      case 'turnOff':
-        return FSM.Update({ on: false });
       default:
-        return FSM.NoUpdate();
+        return FiniteMachine.NoUpdate();
     }
   };
 
   render() {
     return (
-      <FSM
+      <FiniteMachine
         machine={lightMachine}
         initialState={{
           on: false,
           blocked: false,
         }}
         reducer={this.reducer}
-        render={({ machineState, state: { on, blocked }, transition }) => {
+        render={({ machineState, state, transition }) => {
+          const { on, blocked } = state;
           return (
             <button
               style={{
@@ -136,7 +137,6 @@ class Light extends React.Component {
                 <input
                   id="switch"
                   type="checkbox"
-                  blocked={blocked}
                   checked={on}
                   onChange={() => {
                     transition('flick');
