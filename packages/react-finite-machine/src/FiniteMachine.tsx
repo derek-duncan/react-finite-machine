@@ -3,7 +3,7 @@ import { State as MachineState } from 'xstate';
 import { StandardMachine, Action } from 'xstate/lib/types';
 
 export type Props = {
-  initialState: ExtendedState;
+  initialData: Data;
   machine: StandardMachine;
   reducer: (
     bag: Bag,
@@ -18,22 +18,22 @@ export type Props = {
 
 export type State = {
   machineState: MachineState;
-  extendedState: ExtendedState;
+  data: Data;
 };
 
-export type ExtendedState = Object;
+export type Data = Object;
 
 export type SideEffect = () => void;
 
 export type Bag = {
   transition: (eventName: string) => void;
-  state: ExtendedState;
+  data: Data;
   machineState: MachineState;
 };
 
 export type ReducerUpdate = {
   type: '@FiniteMachine/UPDATE';
-  nextState: ExtendedState;
+  nextState: Data;
   sideEffect?: void;
 };
 
@@ -51,14 +51,14 @@ export type ReducerSideEffects = {
 
 export type ReducerUpdateWithSideEffects = {
   type: '@FiniteMachine/UPDATE_WITH_SIDE_EFFECTS';
-  nextState: ExtendedState;
+  nextState: Data;
   sideEffect: SideEffect;
 };
 
 export class FiniteMachine extends React.Component<Props, State> {
   state: State = {
     machineState: this.props.machine.initialState,
-    extendedState: this.props.initialState,
+    data: this.props.initialData,
   };
 
   componentDidMount() {
@@ -81,7 +81,7 @@ export class FiniteMachine extends React.Component<Props, State> {
 
   applyActionsToState(machineState: MachineState) {
     const { reducer } = this.props;
-    const { extendedState } = this.state;
+    const { data } = this.state;
 
     /**
      * Collect the side effects from the reducer results so they can be run
@@ -90,7 +90,7 @@ export class FiniteMachine extends React.Component<Props, State> {
     let nextSideEffects: SideEffect[] = [];
     this.setState(
       () => {
-        let nextExtendedState = extendedState;
+        let nextExtendedState = data;
 
         for (let actionName of machineState.actions) {
           const { nextState, sideEffect } = reducer(
@@ -114,7 +114,7 @@ export class FiniteMachine extends React.Component<Props, State> {
 
         return {
           machineState,
-          extendedState: nextExtendedState,
+          data: nextExtendedState,
         };
       },
       () => {
@@ -127,7 +127,7 @@ export class FiniteMachine extends React.Component<Props, State> {
     return {
       transition: this.transition,
       machineState,
-      state: this.state.extendedState,
+      data: this.state.data,
     };
   }
 
@@ -135,7 +135,7 @@ export class FiniteMachine extends React.Component<Props, State> {
     return { type: '@FiniteMachine/NO_UPDATE' };
   }
 
-  static Update(nextState: ExtendedState): ReducerUpdate {
+  static Update(nextState: Data): ReducerUpdate {
     return { nextState, type: '@FiniteMachine/UPDATE' };
   }
 
@@ -144,7 +144,7 @@ export class FiniteMachine extends React.Component<Props, State> {
   }
 
   static UpdateWithSideEffects(
-    nextState: ExtendedState,
+    nextState: Data,
     sideEffect: SideEffect
   ): ReducerUpdateWithSideEffects {
     return {

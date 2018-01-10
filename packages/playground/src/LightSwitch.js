@@ -10,48 +10,48 @@ const lightMachine = Machine({
   initial: 'off',
   states: {
     off: {
-      initial: 'blocked',
       on: {
-        flick: 'on',
+        FLICK: 'on',
       },
+      initial: 'a',
       states: {
-        blocked: {
+        a: {
           on: {
-            flick: 'blocked',
-            unblock: 'unblocked',
+            FLICK: 'a',
+            UNBLOCK: 'b',
           },
           onEntry: { type: 'startUnblockTimer', delay: 2000 },
           onExit: { type: 'cancelUnblockTimer' },
         },
-        unblocked: {},
+        b: {},
       },
     },
     on: {
-      initial: 'blocked',
       on: {
-        flick: 'off',
+        FLICK: 'off',
       },
+      initial: 'c',
       states: {
-        blocked: {
+        c: {
           on: {
-            flick: 'blocked',
-            unblock: 'unblocked',
+            FLICK: 'c',
+            UNBLOCK: 'd',
           },
           onEntry: { type: 'startUnblockTimer', delay: 500 },
           onExit: { type: 'cancelUnblockTimer' },
         },
-        unblocked: {
-          initial: 'blocked',
+        d: {
+          initial: 'e',
           states: {
-            blocked: {
+            e: {
               on: {
-                flick: 'blocked',
-                unblock: 'unblocked',
+                FLICK: 'e',
+                UNBLOCK: 'f',
               },
               onEntry: { type: 'startUnblockTimer', delay: 500 },
               onExit: { type: 'cancelUnblockTimer' },
             },
-            unblocked: {},
+            f: {},
           },
           onEntry: { type: 'turnOn' },
           onExit: { type: 'turnOff' },
@@ -61,7 +61,7 @@ const lightMachine = Machine({
   },
 });
 
-class Light extends React.Component {
+class LightSwitch extends React.Component {
   /**
    * The reducer allows the FiniteMachine component to respond to actions in the state machine.
    * It is called every time a transition occurs in the state machine. It follows the
@@ -77,7 +77,7 @@ class Light extends React.Component {
       case 'startUnblockTimer':
         return FiniteMachine.UpdateWithSideEffects({ blocked: true }, () => {
           this.unblockTimer = setTimeout(
-            () => transition('unblock'),
+            () => transition('UNBLOCK'),
             action.delay
           );
         });
@@ -94,13 +94,13 @@ class Light extends React.Component {
     return (
       <FiniteMachine
         machine={lightMachine}
-        initialState={{
+        initialData={{
           on: false,
           blocked: false,
         }}
         reducer={this.reducer}
-        render={({ machineState, state, transition }) => {
-          const { on, blocked } = state;
+        render={({ machineState, data, transition }) => {
+          const { on, blocked } = data;
           return (
             <button
               style={{
@@ -120,7 +120,7 @@ class Light extends React.Component {
                 color: on ? '#333' : '#f5f5f5',
               }}
               onClick={() => {
-                transition('flick');
+                transition('FLICK');
               }}
             >
               <div
@@ -156,4 +156,4 @@ class Light extends React.Component {
   }
 }
 
-export default Light;
+export default LightSwitch;
