@@ -123,26 +123,6 @@ class Light extends React.Component {
                 transition('flick');
               }}
             >
-              <div>
-                <span
-                  style={{
-                    fontFamily: 'monospace',
-                    textDecoration: blocked ? 'line-through' : 'none',
-                    paddingRight: '10px',
-                    userSelect: 'none',
-                  }}
-                >
-                  Switch
-                </span>
-                <input
-                  id="switch"
-                  type="checkbox"
-                  checked={on}
-                  onChange={() => {
-                    transition('flick');
-                  }}
-                />
-              </div>
               <div
                 style={{
                   fontSize: '16px',
@@ -157,6 +137,17 @@ class Light extends React.Component {
               >
                 [BLOCKED]
               </div>
+              <span
+                style={{
+                  fontFamily: 'monospace',
+                  textDecoration: blocked ? 'line-through' : 'none',
+                  paddingBottom: '10px',
+                  userSelect: 'none',
+                }}
+              >
+                Switch
+              </span>
+              <input id="switch" type="checkbox" checked={on} />
             </button>
           );
         }}
