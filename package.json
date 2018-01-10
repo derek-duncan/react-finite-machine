@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "repository": "https://github.com/derek-duncan/react-finite-machine",
+  "author": "Derek Duncan <work@derekduncan.me>",
+  "license": "MIT",
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "react-finite-machine": "0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  }
+}
