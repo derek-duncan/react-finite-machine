@@ -4,4 +4,4 @@ Statecharts are managed with the wonderful [xstate](https://github.com/davidkpia
 
 ## Usage [In Progress]
 
-See [LightSwitch example](../playground/src/LightSwitch.js) for an example.
+See [LightSwitch example](./packages/playground/src/LightSwitch.js) for an example.
