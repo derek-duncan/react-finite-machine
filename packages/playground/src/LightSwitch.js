@@ -6,58 +6,58 @@ import React from 'react';
 import { Machine } from 'xstate';
 import FiniteMachine from 'react-finite-machine';
 
-const lightMachine = Machine({
-  initial: 'off',
+const lightSwitchMachine = Machine({
+  initial: 'Off',
   states: {
-    off: {
+    Off: {
       on: {
-        FLICK: 'on',
+        FLICK: 'On',
       },
-      initial: 'a',
+      initial: 'A',
       states: {
-        a: {
+        A: {
           on: {
-            FLICK: 'a',
-            UNBLOCK: 'b',
+            FLICK: 'A',
+            UNBLOCK: 'B',
           },
           onEntry: { type: 'startUnblockTimer', delay: 2000 },
           onExit: { type: 'cancelUnblockTimer' },
         },
-        b: {},
+        B: {},
       },
     },
-    on: {
+    On: {
       on: {
-        FLICK: 'off',
+        FLICK: 'Off',
       },
-      initial: 'c',
+      initial: 'C',
       states: {
-        c: {
+        C: {
           on: {
-            UNBLOCK: 'd',
+            UNBLOCK: 'D',
           },
           onEntry: { type: 'startUnblockTimer', delay: 500 },
           onExit: { type: 'cancelUnblockTimer' },
         },
-        d: {
-          initial: 'e',
+        D: {
+          initial: 'E',
           states: {
-            e: {
+            E: {
               on: {
-                UNBLOCK: 'f',
+                UNBLOCK: 'F',
               },
               onEntry: { type: 'startUnblockTimer', delay: 500 },
               onExit: { type: 'cancelUnblockTimer' },
-              initial: 'g',
+              initial: 'G',
               states: {
-                g: {
+                G: {
                   on: {
-                    FLICK: 'g',
-                  }
-                }
-              }
+                    FLICK: 'G',
+                  },
+                },
+              },
             },
-            f: {},
+            F: {},
           },
           onEntry: { type: 'turnOn' },
           onExit: { type: 'turnOff' },
@@ -99,7 +99,7 @@ class LightSwitch extends React.Component {
   render() {
     return (
       <FiniteMachine
-        machine={lightMachine}
+        machine={lightSwitchMachine}
         initialData={{
           on: false,
           blocked: false,
