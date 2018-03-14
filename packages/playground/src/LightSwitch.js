@@ -3,10 +3,9 @@
  */
 
 import React from 'react';
-import { Machine } from 'xstate';
 import FiniteMachine from 'react-finite-machine';
 
-const lightSwitchMachine = Machine({
+const lightSwitchMachine = {
   initial: 'Off',
   states: {
     Off: {
@@ -65,7 +64,7 @@ const lightSwitchMachine = Machine({
       },
     },
   },
-});
+};
 
 class LightSwitch extends React.Component {
   /**
@@ -74,7 +73,7 @@ class LightSwitch extends React.Component {
    * ReactReason reducer API where we explicitly return a state update with or without
    * side effects.
    */
-  reducer = ({ machineState, state, transition }, action) => {
+  reducer = ({ machine, state, transition }, action) => {
     switch (action.type) {
       case 'turnOn':
         return FiniteMachine.Update({ on: true });
@@ -100,61 +99,77 @@ class LightSwitch extends React.Component {
     return (
       <FiniteMachine
         machine={lightSwitchMachine}
-        initialData={{
+        initialState={{
           on: false,
           blocked: false,
         }}
         reducer={this.reducer}
-        render={({ machineState, data, transition }) => {
-          const { on, blocked } = data;
+        render={({ machine, state, transition }) => {
+          const { on, blocked } = state;
           return (
-            <button
-              style={{
-                position: 'relative',
-                height: '100%',
-                width: '100%',
-                padding: '20px',
-                display: 'flex',
-                flexFlow: 'column',
-                alignItems: 'center',
-                fontSize: 'inherit',
-                justifyContent: 'center',
-                transition:
-                  'color 300ms ease-in, background-color 300ms ease-in',
-                border: 'none',
-                backgroundColor: on ? '#f5f5f5' : '#333',
-                color: on ? '#333' : '#f5f5f5',
-              }}
-              onClick={() => {
-                transition('FLICK');
-              }}
-            >
-              <div
+            <div>
+              <h3>Requirements</h3>
+              <a href="https://statecharts.github.io/on-off-statechart.html">
+                https://statecharts.github.io/on-off-statechart.html
+              </a>
+              <h3>Demo</h3>
+              <button
                 style={{
-                  fontSize: '16px',
-                  fontFamily: 'monospace',
+                  position: 'relative',
+                  height: '400px',
+                  width: '250px',
                   padding: '20px',
-                  opacity: blocked ? 1 : 0,
-                  transition: 'opacity 300ms',
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
+                  display: 'flex',
+                  flexFlow: 'column',
+                  alignItems: 'center',
+                  fontSize: 'inherit',
+                  justifyContent: 'center',
+                  transition:
+                    'color 300ms ease-in, background-color 300ms ease-in',
+                  border: 'none',
+                  backgroundColor: on ? '#f5f5f5' : '#333',
+                  color: on ? '#333' : '#f5f5f5',
+                }}
+                onClick={() => {
+                  transition('FLICK');
                 }}
               >
-                [BLOCKED]
-              </div>
-              <span
-                style={{
-                  fontFamily: 'monospace',
-                  textDecoration: blocked ? 'line-through' : 'none',
-                  paddingBottom: '10px',
-                  userSelect: 'none',
-                }}
-              >
-                Switch
-              </span>
-              <input id="switch" type="checkbox" checked={on} />
-            </button>
+                <div
+                  style={{
+                    fontSize: '16px',
+                    fontFamily: 'monospace',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '20px',
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                  }}
+                >
+                  <span
+                    style={{
+                      opacity: blocked ? 1 : 0,
+                      transition: 'opacity 300ms',
+                    }}
+                  >
+                    [BLOCKED]
+                  </span>
+                  <span>{machine.toString()}</span>
+                </div>
+                <span
+                  style={{
+                    fontFamily: 'monospace',
+                    textDecoration: blocked ? 'line-through' : 'none',
+                    paddingBottom: '10px',
+                    userSelect: 'none',
+                  }}
+                >
+                  Switch
+                </span>
+                <input id="switch" type="checkbox" checked={on} />
+              </button>
+            </div>
           );
         }}
       />

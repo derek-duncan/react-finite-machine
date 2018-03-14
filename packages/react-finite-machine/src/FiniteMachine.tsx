@@ -1,39 +1,44 @@
 import * as React from 'react';
-import { State as MachineState } from 'xstate';
-import { StandardMachine, Action } from 'xstate/lib/types';
+import * as xstate from 'xstate';
+import * as xstateTypes from 'xstate/lib/types';
+import MachineState from 'xstate/lib/state';
+
+export { xstate, xstateTypes };
 
 export type Props = {
-  initialData: Data;
-  machine: StandardMachine;
+  initialState: StateProp;
+  machine: xstateTypes.MachineConfig | xstateTypes.ParallelMachineConfig;
   reducer: (
     bag: Bag,
-    action: Action
+    action: xstateTypes.ActionObject,
+    event: xstateTypes.EventObject
   ) =>
     | ReducerNoUpdate
     | ReducerUpdate
     | ReducerSideEffects
     | ReducerUpdateWithSideEffects;
-  render: (bag: Bag) => React.ReactNode;
+  render?: (bag: Bag) => React.ReactNode;
+  children?: (bag: Bag) => React.ReactNode;
 };
 
 export type State = {
-  machineState: MachineState;
-  data: Data;
+  machine: xstate.State;
+  state: StateProp;
 };
 
-export type Data = Object;
+export type StateProp = Object;
 
-export type SideEffect = () => void;
+export type SideEffect = (event: xstateTypes.EventObject) => void;
 
 export type Bag = {
-  transition: (eventName: string) => void;
-  data: Data;
-  machineState: MachineState;
+  transition: (event: xstateTypes.Event, extendedState?: any) => void;
+  state: StateProp;
+  machine: xstate.State;
 };
 
 export type ReducerUpdate = {
   type: '@FiniteMachine/UPDATE';
-  nextState: Data;
+  nextState: StateProp;
   sideEffect?: void;
 };
 
@@ -51,19 +56,21 @@ export type ReducerSideEffects = {
 
 export type ReducerUpdateWithSideEffects = {
   type: '@FiniteMachine/UPDATE_WITH_SIDE_EFFECTS';
-  nextState: Data;
+  nextState: StateProp;
   sideEffect: SideEffect;
 };
 
 export class FiniteMachine extends React.Component<Props, State> {
+  private machine = xstate.Machine(this.props.machine);
+
   state: State = {
-    machineState: this.props.machine.initialState,
-    data: this.props.initialData,
+    machine: this.machine.initialState,
+    state: this.props.initialState,
   };
 
   componentDidMount() {
-    const { machineState } = this.state;
-    this.applyActionsToState(machineState);
+    const { machine } = this.state;
+    this.applyPendingActionsToState(machine, { type: '@@INIT' });
   }
 
   /**
@@ -71,17 +78,24 @@ export class FiniteMachine extends React.Component<Props, State> {
    * is valid for the current state, the machine will transition. Any actions
    * will also be dispatched through the reducer during the transition.
    */
-  transition = (eventName: string) => {
-    const { machine } = this.props;
-    const { machineState } = this.state;
+  transition = (event: xstateTypes.Event) => {
+    const { machine, state } = this.state;
 
-    const nextMachineState = machine.transition(machineState, eventName);
-    this.applyActionsToState(nextMachineState);
+    const eventObj: xstateTypes.EventObject =
+      typeof event === 'string' || typeof event === 'number'
+        ? { type: event }
+        : event;
+
+    const nextMachine = this.machine.transition(machine, eventObj, state);
+    this.applyPendingActionsToState(nextMachine, eventObj);
   };
 
-  applyActionsToState(machineState: MachineState) {
+  applyPendingActionsToState(
+    machine: xstate.State,
+    event: xstateTypes.EventObject
+  ) {
     const { reducer } = this.props;
-    const { data } = this.state;
+    const { state: extState } = this.state;
 
     /**
      * Collect the side effects from the reducer results so they can be run
@@ -90,12 +104,18 @@ export class FiniteMachine extends React.Component<Props, State> {
     let nextSideEffects: SideEffect[] = [];
     this.setState(
       () => {
-        let nextExtendedState = data;
+        let nextExtendedState = extState;
 
-        for (let actionName of machineState.actions) {
+        for (let action of machine.actions) {
+          const actionObj: xstateTypes.ActionObject =
+            typeof action === 'string' || typeof action === 'number'
+              ? { type: action }
+              : action;
+
           const { nextState, sideEffect } = reducer(
-            this.makeBag(machineState),
-            actionName
+            this.makeBag(machine),
+            actionObj,
+            event
           );
 
           /**
@@ -113,21 +133,21 @@ export class FiniteMachine extends React.Component<Props, State> {
         }
 
         return {
-          machineState,
-          data: nextExtendedState,
+          machine,
+          state: nextExtendedState,
         };
       },
       () => {
-        nextSideEffects.forEach(sideEffect => sideEffect());
+        nextSideEffects.forEach(sideEffect => sideEffect(event));
       }
     );
   }
 
-  makeBag(machineState: MachineState): Bag {
+  makeBag(machine: xstate.State): Bag {
     return {
       transition: this.transition,
-      machineState,
-      data: this.state.data,
+      machine,
+      state: this.state.state,
     };
   }
 
@@ -135,7 +155,7 @@ export class FiniteMachine extends React.Component<Props, State> {
     return { type: '@FiniteMachine/NO_UPDATE' };
   }
 
-  static Update(nextState: Data): ReducerUpdate {
+  static Update(nextState: StateProp): ReducerUpdate {
     return { nextState, type: '@FiniteMachine/UPDATE' };
   }
 
@@ -144,7 +164,7 @@ export class FiniteMachine extends React.Component<Props, State> {
   }
 
   static UpdateWithSideEffects(
-    nextState: Data,
+    nextState: StateProp,
     sideEffect: SideEffect
   ): ReducerUpdateWithSideEffects {
     return {
@@ -155,9 +175,15 @@ export class FiniteMachine extends React.Component<Props, State> {
   }
 
   render() {
-    const { render } = this.props;
-    const { machineState } = this.state;
+    const { children, render } = this.props;
+    const { machine } = this.state;
 
-    return render(this.makeBag(machineState));
+    if (typeof render === 'function') {
+      return render(this.makeBag(machine));
+    }
+    if (typeof children === 'function') {
+      return children(this.makeBag(machine));
+    }
+    return null;
   }
 }
