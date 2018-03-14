@@ -1,6 +1,6 @@
 {
   "name": "react-finite-machine",
-  "version": "0.3.0",
+  "version": "0.2.1",
   "description": "A finite state machine component for React.",
   "main": "lib/index.js",
   "scripts": {
