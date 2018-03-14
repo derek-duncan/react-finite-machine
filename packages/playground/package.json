@@ -1,13 +1,13 @@
 {
   "private": true,
   "name": "playground",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "dependencies": {
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.0.17",
     "xstate": "^3.0.1",
-    "react-finite-machine": "^0.2.0"
+    "react-finite-machine": "^0.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
