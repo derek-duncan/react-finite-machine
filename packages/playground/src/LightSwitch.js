@@ -108,10 +108,6 @@ class LightSwitch extends React.Component {
           const { on, blocked } = state;
           return (
             <div>
-              <h3>Requirements</h3>
-              <a href="https://statecharts.github.io/on-off-statechart.html">
-                https://statecharts.github.io/on-off-statechart.html
-              </a>
               <h3>Demo</h3>
               <button
                 style={{
@@ -169,6 +165,10 @@ class LightSwitch extends React.Component {
                 </span>
                 <input id="switch" type="checkbox" checked={on} />
               </button>
+              <h3>Requirements</h3>
+              <a href="https://statecharts.github.io/on-off-statechart.html">
+                https://statecharts.github.io/on-off-statechart.html
+              </a>
             </div>
           );
         }}

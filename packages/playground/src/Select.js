@@ -96,36 +96,6 @@ function Select() {
 
         return (
           <div style={{ maxWidth: '500px' }}>
-            <h3>Requirements</h3>
-            <ul>
-              <li>[X] When focused, the input dropdown options should open.</li>
-              <li>
-                [X] Entering text should open the dropdown and filter the
-                dropdown options.
-              </li>
-              <li>
-                [X] If ESC is pressed while editing, the dropdown options should
-                close.
-              </li>
-              <li>
-                [X] If Down Arrow is pressed while the dropdown options are
-                closed, the dropdown options should reopen.
-              </li>
-              <li>
-                [X] In the dropdown options, any selected items should be
-                indicated.
-              </li>
-              <li>
-                [X] When a dropdown option is clicked, the dropdown options
-                should close and the input placeholder should change to the
-                selected option.
-              </li>
-              <li>
-                [X] When a dropdown option is selected, a clear button should
-                appear that allows the user to reset any selected option. After
-                resetting, the input should be refocused.
-              </li>
-            </ul>
             <h3>Demo</h3>
             <div
               onBlur={e => {
@@ -207,6 +177,36 @@ function Select() {
                 </div>
               ) : null}
             </div>
+            <h3>Requirements</h3>
+            <ul>
+              <li>[X] When focused, the input dropdown options should open.</li>
+              <li>
+                [X] Entering text should open the dropdown and filter the
+                dropdown options.
+              </li>
+              <li>
+                [X] If ESC is pressed while editing, the dropdown options should
+                close.
+              </li>
+              <li>
+                [X] If Down Arrow is pressed while the dropdown options are
+                closed, the dropdown options should reopen.
+              </li>
+              <li>
+                [X] In the dropdown options, any selected items should be
+                indicated.
+              </li>
+              <li>
+                [X] When a dropdown option is clicked, the dropdown options
+                should close and the input placeholder should change to the
+                selected option.
+              </li>
+              <li>
+                [X] When a dropdown option is selected, a clear button should
+                appear that allows the user to reset any selected option. After
+                resetting, the input should be refocused.
+              </li>
+            </ul>
           </div>
         );
       }}
