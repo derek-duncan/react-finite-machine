@@ -4,4 +4,4 @@ Create react app playground.
 
 To start, run `yarn start`.
 
-The `LightSwitch` implements the [on-off statechart explained on statecharts.github.io](https://statecharts.github.io/on-off-statechart.html).
+[![Edit playground](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/derek-duncan/react-finite-machine/tree/master/packages/playground)
