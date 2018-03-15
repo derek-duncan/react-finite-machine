@@ -11,7 +11,10 @@ class App extends React.Component {
     screen: this.getURLHash() || 'select',
   };
 
-  changeScreen = screen => () => this.setState({ screen });
+  changeScreen = screen => () => {
+    window.location.hash = `#${screen}`;
+    this.setState({ screen });
+  };
 
   render() {
     const { screen } = this.state;
@@ -25,14 +28,14 @@ class App extends React.Component {
         <header>
           <a
             onClick={this.changeScreen('select')}
-            href="#select"
+            href="javascript:;"
             style={{ margin: '0 5px' }}
           >
             [{screen === 'select' ? 'X' : ''}]Select
           </a>
           <a
             onClick={this.changeScreen('light-switch')}
-            href="#light-switch"
+            href="javascript:;"
             style={{ margin: '0 5px' }}
           >
             [{screen === 'light-switch' ? 'X' : ''}]Light Switch
