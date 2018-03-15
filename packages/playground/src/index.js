@@ -5,8 +5,10 @@ import LightSwitch from './LightSwitch';
 import Select from './Select';
 
 class App extends React.Component {
+  getURLHash = () => window.location.hash.substring(1);
+
   state = {
-    screen: 'select',
+    screen: this.getURLHash() || 'select',
   };
 
   changeScreen = screen => () => this.setState({ screen });
@@ -23,14 +25,14 @@ class App extends React.Component {
         <header>
           <a
             onClick={this.changeScreen('select')}
-            href="#"
+            href="#select"
             style={{ margin: '0 5px' }}
           >
             [{screen === 'select' ? 'X' : ''}]Select
           </a>
           <a
             onClick={this.changeScreen('light-switch')}
-            href="#"
+            href="#light-switch"
             style={{ margin: '0 5px' }}
           >
             [{screen === 'light-switch' ? 'X' : ''}]Light Switch
