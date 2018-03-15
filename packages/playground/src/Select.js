@@ -84,14 +84,14 @@ function Select() {
     >
       {({ state, transition }) => {
         const options = [
-          'Apples',
-          'Bananas',
-          'Pears',
-          'Oranges',
-          'Kiwis',
-          'Mangos',
-          'Grapes',
-          'Strawberries',
+          '🍎 Apples',
+          '🍌 Bananas',
+          '🍐 Pears',
+          '🍊 Oranges',
+          '🥝 Kiwis',
+          '🌴 Mangos',
+          '🍇 Grapes',
+          '🍓 Strawberries',
         ];
 
         return (
@@ -134,7 +134,7 @@ function Select() {
                 Select a Fruit
               </label>
               <br />
-              <div style={{ display: 'flex' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <input
                   ref={ref => {
                     inputRef = ref;
@@ -142,6 +142,7 @@ function Select() {
                   placeholder={state.option || 'Type to search'}
                   id="select"
                   value={state.query}
+                  style={{ fontFamily: 'inherit' }}
                   onChange={e => {
                     const value = e.currentTarget.value;
                     transition({ type: 'FILTER', query: value });
@@ -149,6 +150,7 @@ function Select() {
                 />
                 {state.option ? (
                   <button
+                    style={{ fontFamily: 'inherit' }}
                     onClick={() => {
                       transition('CLEAR');
                     }}
@@ -158,7 +160,17 @@ function Select() {
                 ) : null}
               </div>
               {state.isOpen ? (
-                <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+                <div
+                  style={{
+                    maxHeight: '100px',
+                    width: '150px',
+                    overflowY: 'auto',
+                    marginTop: '5px',
+                    border: '1px solid #f3f3f3',
+                    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+                    position: 'absolute',
+                  }}
+                >
                   {options
                     .filter(option =>
                       option.toLowerCase().includes(state.query.toLowerCase())
@@ -168,7 +180,15 @@ function Select() {
                         key={option}
                         onClick={() => transition({ type: 'SELECT', option })}
                         style={{
-                          fontWeight: state.option === option ? '600' : '400',
+                          display: 'block',
+                          background: '#fff',
+                          border: 'none',
+                          borderBottom: '1px solid #f3f3f3',
+                          padding: '3px 5px',
+                          fontWeight: state.option === option ? '800' : '400',
+                          fontFamily: 'inherit',
+                          width: '100%',
+                          textAlign: 'left',
                         }}
                       >
                         {option}

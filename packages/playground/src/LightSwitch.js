@@ -120,10 +120,11 @@ class LightSwitch extends React.Component {
                   alignItems: 'center',
                   fontSize: 'inherit',
                   justifyContent: 'center',
-                  transition:
-                    'color 300ms ease-in, background-color 300ms ease-in',
+                  transition: 'color 300ms ease-in, background 300ms ease-in',
                   border: 'none',
-                  backgroundColor: on ? '#f5f5f5' : '#333',
+                  background: on
+                    ? 'linear-gradient(#f5f5f5, #e8e8e8)'
+                    : 'linear-gradient(#555, #333)',
                   color: on ? '#333' : '#f5f5f5',
                 }}
                 onClick={() => {
